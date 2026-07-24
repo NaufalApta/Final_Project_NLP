@@ -63,5 +63,5 @@ Pengujian dilakukan pada **Test Set (228 unseen samples)**:
 ## 🛠️ How to Run
 1. Clone this repository:
    ```bash
-   [git clone [https://github.com/USERNAME/REPOSITORY_NAME.git](https://github.com/USERNAME/REPOSITORY_NAME.git)
-](https://github.com/NaufalApta/Final_Project_NLP.git)
+   (https://github.com/NaufalApta/Final_Project_NLP.git)
+
