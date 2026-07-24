@@ -1,7 +1,7 @@
-# Fine-Tuning Pre-trained Language Models for Zomato Sentiment Analysis
+# Fine-Tuning Pre-Trained Language Models for Zomato Sentiment Analysis
 
 ## 📌 Project Overview
-Project ini bertujuan untuk melakukan *fine-tuning* dan perbandingan performa dua model bahasa terpra-latih (*Pre-trained Language Models*), yaitu **BERT (`bert-base-uncased`)** dan **RoBERTa (`roberta-base`)**, pada tugas klasifikasi teks **Analisis Sentimen Ulasan Restoran Zomato** (3 Kelas: Negative, Neutral, Positive).
+This project focuses on fine-tuning and evaluating two pre-trained transformer language models—**BERT (`bert-base-uncased`)** and **RoBERTa (`roberta-base`)**—for a 3-class text classification task: **Sentiment Analysis on Zomato Restaurant Reviews** (Negative, Neutral, Positive).
 
 ---
 
@@ -9,10 +9,10 @@ Project ini bertujuan untuk melakukan *fine-tuning* dan perbandingan performa du
 - **Source:** Zomato Restaurant Reviews (Kaggle)
 - **Task:** Text Classification (Sentiment Analysis)
 - **Classes:** 3 Classes (`0: NEGATIVE`, `1: NEUTRAL`, `2: POSITIVE`)
-- **Cleaning & Subsampling:** 
-  - Text noise removal (`RATED\n`, tuple brackets, and metadata).
-  - Subsampled up to 1,000 samples per class to mitigate class imbalance.
-  - **Total Samples:** 2,280 reviews.
+- **Cleaning & Preprocessing:** 
+  - Text noise removal (stripped `RATED\n` tags, metadata, tuple brackets, and unwanted characters).
+  - Subsampled up to 1,000 samples per class to mitigate extreme class imbalance.
+  - **Total Samples:** 2,280 cleaned review texts.
 - **Data Splitting (Stratified):**
   - **Train Set (80%):** 1,824 samples
   - **Validation Set (10%):** 228 samples
@@ -21,21 +21,21 @@ Project ini bertujuan untuk melakukan *fine-tuning* dan perbandingan performa du
 ---
 
 ## ⚙️ Experimental Setup & Hyperparameters
-Fine-tuning dilakukan menggunakan PyTorch dan Hugging Face `Trainer` API di GPU Apple Silicon (MPS).
+Fine-tuning was conducted using PyTorch and the Hugging Face `Trainer` API accelerated on an Apple Silicon GPU (MPS).
 
-| Hyperparameter | Value | Justification |
+| Hyperparameter | Value | Technical Justification |
 | :--- | :--- | :--- |
-| **Learning Rate** | `2e-5` | Mencegah *catastrophic forgetting* pada bobot terpra-latih transformer. |
-| **Batch Size (Effective)** | `16` (`8 per device` × `2 grad accum`) | Mengoptimalkan alokasi memori VRAM GPU dan stabilitas estimasi gradien. |
-| **Epochs** | `3` | Memberikan konvergensi yang cukup tanpa memicu *overfitting*. |
-| **Optimizer & Regularization** | AdamW with `weight_decay = 0.01` | Mencegah overfitting melalui L2 regularization. |
-| **Best Model Metric** | `Macro F1-Score` | Evaluasi yang adil untuk seluruh kelas sentimen. |
+| **Learning Rate** | `2e-5` | Recommended learning rate for transformer fine-tuning to prevent *catastrophic forgetting*. |
+| **Effective Batch Size** | `16` (`8 per device` × `2 grad accum`) | Optimizes VRAM allocation while maintaining gradient estimation stability. |
+| **Epochs** | `3` | Ensures optimal convergence without overfitting the pre-trained weights. |
+| **Optimizer & Regularization** | AdamW with `weight_decay = 0.01` | L2 weight decay regularization to prevent overfitting. |
+| **Evaluation Metric** | `Macro F1-Score` | Provides an unbiased evaluation across all sentiment classes. |
 
 ---
 
-## 📈 Evaluation Results & Comparison
+## 📈 Evaluation Results & Model Comparison
 
-Pengujian dilakukan pada **Test Set (228 unseen samples)**:
+Both fine-tuned models were evaluated on the unseen **Test Set (228 samples)**:
 
 | Model Architecture | Test Accuracy | Test F1 Macro |
 | :--- | :---: | :---: |
@@ -43,19 +43,19 @@ Pengujian dilakukan pada **Test Set (228 unseen samples)**:
 | **RoBERTa (`roberta-base`)** | **69.30%** | **67.89%** |
 
 ### 🔍 Key Findings & Analysis
-1. **RoBERTa Outperforms BERT:** Model **RoBERTa** mengungguli BERT dengan peningkatan akurasi **+3.95%** dan Macro F1-Score **+3.44%**. Hal ini disebabkan oleh strategi *dynamic masking* dan *pre-training* yang lebih besar pada RoBERTa, sehingga lebih andal dalam memahami nuansa ulasan makanan/restoran.
-2. **Confusion Matrix Analysis:**
-   - Kedua model dapat mengenali kelas **NEGATIVE** dengan *precision* yang sangat tinggi.
-   - Kesalahan prediksi terbesar terjadi antara kelas **NEUTRAL** dan **POSITIVE**, yang disebabkan oleh kemiripan batas bahasa pada ulasan restoran (misal: *"Makanannya lumayan"* vs *"Makanannya enak"*).
+1. **RoBERTa Outperforms BERT:** **RoBERTa** achieved superior performance over BERT, with an improvement of **+3.95% in Test Accuracy** and **+3.44% in Macro F1-Score**. This performance boost is attributed to RoBERTa's dynamic masking and larger pre-training corpus, making it more robust at interpreting informal review nuances.
+2. **Confusion Matrix Insights:**
+   - Both models demonstrated high precision in detecting **NEGATIVE** sentiment reviews.
+   - The primary source of misclassification occurred between **NEUTRAL** and **POSITIVE** classes due to subtle linguistic boundaries in restaurant feedback (e.g., *"Food was okay"* vs. *"Food was quite good"*).
 
 ---
 
 ## 📸 Confusion Matrix Visualizations
 
-### BERT Baseline
+### BERT Baseline Model
 ![Confusion Matrix BERT](confusion_matrix_bert.png)
 
-### RoBERTa Model
+### RoBERTa Fine-Tuned Model
 ![Confusion Matrix RoBERTa](confusion_matrix_roberta.png)
 
 ---
